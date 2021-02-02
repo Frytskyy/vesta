@@ -173,8 +173,6 @@ for auth in $authz; do
             if [ ! -e "$sconf" ]; then
                 ln -s "$conf" "$sconf"
             fi
-            $BIN/v-restart-proxy
-            check_result $? "Proxy restart failed" >/dev/null
 
         else
             well_known="$HOMEDIR/$user/web/$domain/public_html/.well-known"
@@ -217,6 +215,10 @@ for auth in $authz; do
         check_result $E_CONNECT "Let's Encrypt domain verification failed"
     fi
 done
+
+#VMF: moved from above to restart once per batch, otherwise Nginix crashes badly when there is many domain aliases "nginx.service: Start request repeated too quickly.". Whole server went down unexpectedly as this thing is called by Cron
+$BIN/v-restart-proxy
+check_result $? "Proxy restart failed" >/dev/null
 
 
 # Generating new ssl certificate
